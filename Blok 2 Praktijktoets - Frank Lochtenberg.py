@@ -1,5 +1,5 @@
 # Made by Frank Lochtenberg
-# Version 3
+# Version 4
 
 import re
 import matplotlib.pyplot as plt
@@ -167,6 +167,7 @@ class GUI:
         seq = read_fasta_seq()
         zfc = ConcencusCheck(headers, seq).get_concencus()
         self.zfc = zfc
+        self.show_plot = plt.show()
 
         # Makes the main window
         self.main_window = tkinter.Tk()
@@ -216,12 +217,12 @@ class GUI:
         self.concencus_button.pack(side="left")
 
         # Makes the graph buttons
-        # self.pie_button = tkinter.Button(self.graph_buttons_frame,
-                                         # text="Show Pie Diagram",
-                                         # command=self.pie_diagram())
+        self.pie_button = tkinter.Button(self.graph_buttons_frame,
+                                         text="Show Pie Diagram",
+                                         command=self.pie_diagram)
 
         # Places the graph buttons
-        # self.pie_button.pack(side="left")
+        self.pie_button.pack(side="left")
 
         # Makes the quit button
         self.quit_button = tkinter.Button(self.quit_frame,
@@ -284,28 +285,17 @@ class GUI:
                                     " of the Zinc Finger Concencus "
                                     "constated in the C. Elegans.")
 
-    # def pie_diagram(self):
-        # values = [self.exons_count, self.cds_count, self.mrna_count,
-                  # self.other_count]
-        # labels = ["Exon", "CDS", "mRNA", "Other"]
-        # explode = (0.02, 0.01, 0.01, 0.16)
-        # plt.pie(values, explode=explode, labels=labels, startangle=90,
-                # shadow=True)
-        # plt.title("The number of different kinds of sequences in the "
-                  # "C. Elegans")
-        # tkinter.messagebox.showinfo("Pie Diagram", plt.show())
-
-
-def pie_diagram(exon_count, cds_count, mrna_count, other_count):
-    values = [exon_count, cds_count, mrna_count, other_count]
-    labels = ["Exon", "CDS", "mRNA", "Other"]
-    explode = (0.02, 0.01, 0.01, 0.16)
-    plt.pie(values, explode=explode, labels=labels, startangle=90,
-            shadow=True)
-    plt.title("The number of different kinds of sequences in the "
-              "C. Elegans")
-    plt.show()
-
+    def pie_diagram(self):
+        values = [self.exons_count, self.cds_count, self.mrna_count,
+                  self.other_count]
+        labels = ["Exon", "CDS", "mRNA", "Other"]
+        explode = (0.02, 0.01, 0.01, 0.16)
+        plt.pie(values, explode=explode, labels=labels, startangle=90,
+                shadow=True)
+        plt.title("The number of different kinds of sequences in the "
+                  "C. Elegans")
+        plt.show()
+        tkinter.messagebox.showinfo("Pie Diagram", "Hello!")
 
 def main():
     headers = read_fasta_header()
@@ -317,7 +307,6 @@ def main():
     total_count = counting_total()
     other_count = calculating_other(exon_count, cds_count, mrna_count,
                                     total_count)
-    # pie_diagram(exon_count, cds_count, mrna_count, other_count)
     GUI(exon_count, cds_count, mrna_count, total_count,
         other_count)
 
