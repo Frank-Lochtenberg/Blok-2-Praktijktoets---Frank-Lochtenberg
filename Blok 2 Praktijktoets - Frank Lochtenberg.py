@@ -1,5 +1,5 @@
 # Made by Frank Lochtenberg
-# Version 2
+# Version 3
 
 import re
 import matplotlib.pyplot as plt
@@ -111,26 +111,6 @@ def calculating_other(exon_count, cds_count, mrna_count, total_count):
     return other_count
 
 
-def display_count(exon_count, cds_count, mrna_count, total_count,
-                  other_count):
-    """Displays the frequency of exons, CDS, mRNA in the gff3 file.
-
-    :param exon_count: An integer which is the frequency of exons in
-    the gff3 file.
-    :param cds_count: An integer which is the frequency of CDS in
-    the gff3 file.
-    :param mrna_count: An integer which is the frequency of mRNA in
-    the gff3 file.
-    :param total_count: An integer which is the total of lines in
-    the gff3 file.
-    :param other_count:  An integer which is the frequency of other
-    items than exons, CDS & mRNA in the gff3 file.
-    :return: Nothing
-    """
-    print(exon_count, ",", cds_count, ",", mrna_count, "&", total_count,
-          "|", other_count)
-
-
 class ConcencusCheck:
     """Checks if the is a concencus pattern in the amino acids sequences
 
@@ -143,16 +123,16 @@ class ConcencusCheck:
         self.print_concencus()
 
     def set_headers(self, headers):
-        self.__headers = headers
+        self.headers = headers
 
     def get_headers(self):
-        return self.__headers
+        return self.headers
 
     def set_aa_seq(self, seq):
-        self.__aa_seq = seq
+        self.aa_seq = seq
 
     def get_aa_seq(self):
-        return self.__aa_seq
+        return self.aa_seq
 
     def set_concensus(self):
         nccc = 0
@@ -161,18 +141,19 @@ class ConcencusCheck:
             ccc = re.search(r"C[A-Z]{2}C[A-Z]{2}C[A-Z]{5}C[A-Z]{2}"
                             r"C[A-Z]{2}C", aa_seq)
             if ccc:
-                cccl.append(ccc)
-                self.__concencus = cccl
+                cccl.append(ccc.group())
+                self.concencus = cccl
             else:
                 nccc += 1
         return nccc
 
     def get_concencus(self):
-        return self.__concencus
+        return self.concencus
 
     def print_concencus(self):
+        lccc = self.get_concencus()
         print(self.get_concencus())
-
+        return lccc
 
 class GUI:
     def __init__(self, exon_count, cds_count, mrna_count, total_count,
@@ -182,6 +163,10 @@ class GUI:
         self.mrna_count = mrna_count
         self.total_count = total_count
         self.other_count = other_count
+        headers = read_fasta_header()
+        seq = read_fasta_seq()
+        zfc = ConcencusCheck(headers, seq).get_concencus()
+        self.zfc = zfc
 
         # Makes the main window
         self.main_window = tkinter.Tk()
@@ -190,6 +175,7 @@ class GUI:
         # Makes frames
         self.intro_frame = tkinter.Frame(self.main_window)
         self.info_buttons_frame = tkinter.Frame(self.main_window)
+        self.graph_buttons_frame = tkinter.Frame(self.main_window)
         self.quit_frame = tkinter.Frame(self.main_window)
 
         # Makes a label for the introduction sentence
@@ -216,6 +202,10 @@ class GUI:
         self.total_button = tkinter.Button(self.info_buttons_frame,
                                            text="Total of items Info",
                                            command=self.total)
+        self.concencus_button = tkinter.Button(self.info_buttons_frame,
+                                               text="Zinc Finger "
+                                                    "Concencus Info",
+                                               command=self.concencus)
 
         # Places the buttons for info
         self.exon_button.pack(side="left")
@@ -223,6 +213,15 @@ class GUI:
         self.mrna_button.pack(side="left")
         self.other_button.pack(side="left")
         self.total_button.pack(side="left")
+        self.concencus_button.pack(side="left")
+
+        # Makes the graph buttons
+        # self.pie_button = tkinter.Button(self.graph_buttons_frame,
+                                         # text="Show Pie Diagram",
+                                         # command=self.pie_diagram())
+
+        # Places the graph buttons
+        # self.pie_button.pack(side="left")
 
         # Makes the quit button
         self.quit_button = tkinter.Button(self.quit_frame,
@@ -235,6 +234,7 @@ class GUI:
         # Places the frames in the GUI.
         self.intro_frame.pack()
         self.info_buttons_frame.pack()
+        self.graph_buttons_frame.pack()
         self.quit_frame.pack()
 
         # Makes the main window visible.
@@ -242,32 +242,68 @@ class GUI:
 
     def exons(self):
         tkinter.messagebox.showinfo("Exons Info",
-                                    self.exons_count)
+                                    "There are " +
+                                    str(self.exons_count) +
+                                    " exon sequences in the "
+                                    "C. Elegans.")
 
     def cds(self):
         tkinter.messagebox.showinfo("CDS Info",
-                                    self.cds_count)
+                                    "There are " +
+                                    str(self.cds_count) +
+                                    " CDS sequences in the C. Elegans.")
 
     def mrna(self):
         tkinter.messagebox.showinfo("mRNA Info",
-                                    self.mrna_count)
+                                    "There are " +
+                                    str(self.mrna_count) +
+                                    " mRNA sequences in the "
+                                    "C. Elegans.")
 
     def other(self):
         tkinter.messagebox.showinfo("Other items Info",
-                                    self.other_count)
+                                    "There are " +
+                                    str(self.other_count) +
+                                    " of other items than exon, CDS & "
+                                    "mRNA sequences in the C. Elegans.")
 
     def total(self):
         tkinter.messagebox.showinfo("Total of items Info",
-                                    self.total_count)
+                                    "There are " +
+                                    str(self.total_count) +
+                                    " of total sequences in the "
+                                    "C. Elegans.")
+
+    def concencus(self):
+        zinc_finger_count = 0
+        for _ in self.zfc:
+            zinc_finger_count += 1
+        tkinter.messagebox.showinfo("Zinc Finger Concencus Info",
+                                    "There are " +
+                                    str(zinc_finger_count) +
+                                    " of the Zinc Finger Concencus "
+                                    "constated in the C. Elegans.")
+
+    # def pie_diagram(self):
+        # values = [self.exons_count, self.cds_count, self.mrna_count,
+                  # self.other_count]
+        # labels = ["Exon", "CDS", "mRNA", "Other"]
+        # explode = (0.02, 0.01, 0.01, 0.16)
+        # plt.pie(values, explode=explode, labels=labels, startangle=90,
+                # shadow=True)
+        # plt.title("The number of different kinds of sequences in the "
+                  # "C. Elegans")
+        # tkinter.messagebox.showinfo("Pie Diagram", plt.show())
 
 
 def pie_diagram(exon_count, cds_count, mrna_count, other_count):
     values = [exon_count, cds_count, mrna_count, other_count]
-    labels = ["exon_count", "cds_count", "mrna_count", "other_count"]
+    labels = ["Exon", "CDS", "mRNA", "Other"]
     explode = (0.02, 0.01, 0.01, 0.16)
     plt.pie(values, explode=explode, labels=labels, startangle=90,
             shadow=True)
-    plt.title("The Pie of Information")
+    plt.title("The number of different kinds of sequences in the "
+              "C. Elegans")
     plt.show()
 
 
@@ -281,9 +317,7 @@ def main():
     total_count = counting_total()
     other_count = calculating_other(exon_count, cds_count, mrna_count,
                                     total_count)
-    display_count(exon_count, cds_count, mrna_count, total_count,
-                  other_count)
-    pie_diagram(exon_count, cds_count, mrna_count, other_count)
+    # pie_diagram(exon_count, cds_count, mrna_count, other_count)
     GUI(exon_count, cds_count, mrna_count, total_count,
         other_count)
 
