@@ -1,5 +1,5 @@
 # Made by Frank Lochtenberg
-# Version 4
+# Version 5
 
 import re
 import matplotlib.pyplot as plt
@@ -120,7 +120,6 @@ class ConcencusCheck:
         self.set_headers(headers)
         self.set_aa_seq(seq)
         self.set_concensus()
-        self.print_concencus()
 
     def set_headers(self, headers):
         self.headers = headers
@@ -150,10 +149,6 @@ class ConcencusCheck:
     def get_concencus(self):
         return self.concencus
 
-    def print_concencus(self):
-        lccc = self.get_concencus()
-        print(self.get_concencus())
-        return lccc
 
 class GUI:
     def __init__(self, exon_count, cds_count, mrna_count, total_count,
@@ -220,9 +215,28 @@ class GUI:
         self.pie_button = tkinter.Button(self.graph_buttons_frame,
                                          text="Show Pie Diagram",
                                          command=self.pie_diagram)
+        self.bar_button = tkinter.Button(self.graph_buttons_frame,
+                                         text="Show Bar Diagram",
+                                         command=self.bar_diagram)
+        self.stacked_bar_button = tkinter.Button(self.
+                                                 graph_buttons_frame,
+                                                 text="Show Stacked Bar"
+                                                      " Diagram",
+                                                 command=self.
+                                                 stacked_bar_diagram)
+
+        # Make Hello Button
+        self.hello_button = tkinter.Button(self.graph_buttons_frame,
+                                           text="Hello",
+                                                 command=self.hello)
+
+        # Place Hello Button
+        self.hello_button.pack(side="left")
 
         # Places the graph buttons
         self.pie_button.pack(side="left")
+        self.bar_button.pack(side="left")
+        self.stacked_bar_button.pack(side="left")
 
         # Makes the quit button
         self.quit_button = tkinter.Button(self.quit_frame,
@@ -291,11 +305,49 @@ class GUI:
         labels = ["Exon", "CDS", "mRNA", "Other"]
         explode = (0.02, 0.01, 0.01, 0.16)
         plt.pie(values, explode=explode, labels=labels, startangle=90,
-                shadow=True)
+                shadow=True, colors="yrbk")
         plt.title("The number of different kinds of sequences in the "
                   "C. Elegans")
         plt.show()
-        tkinter.messagebox.showinfo("Pie Diagram", "Hello!")
+
+    def bar_diagram(self):
+        x = ["Exon", "CDS", "mRNA", "Other"]
+        y = [self.exons_count, self.cds_count, self.mrna_count,
+             self.other_count]
+        plt.bar(x, y, color="yrbk")
+        plt.title("The number of different kinds of sequences in the "
+                  "C. Elegans")
+        plt.xlabel("Kind of sequences")
+        plt.ylabel("Frequency of kind of sequences")
+        plt.grid(True, color="w", axis="y")
+        plt.show()
+
+    def stacked_bar_diagram(self):
+        x = ["Exons, CDS & mRNA sequences", "Other sequences"]
+        e = [self.exons_count, 0]
+        c = [self.cds_count, 0]
+        m = [self.mrna_count, 0]
+        o = [0, self.other_count]
+        plt.bar(x, m, color="b")
+        plt.bar(x, c, color="r", bottom=m)
+        plt.bar(x, e, color="y", bottom=c)
+        plt.bar(x, o, color="k")
+        plt.title("The number of different kinds of sequences in the "
+                  "C. Elegans")
+        plt.xlabel("All Sequences", color="g")
+        plt.ylabel("The frequency of different kinds of sequences in "
+                   "the C. Elegans", color="g")
+        legend = ["The frequency of exon sequences",
+                  "The frequency of CDS sequences",
+                  "The frequency of mRNA sequences",
+                  "The frequency of other kinds of sequences"]
+        plt.legend(legend)
+        plt.grid(True, color="w", axis="y")
+        plt.show()
+
+    def hello(self):
+        tkinter.messagebox.showinfo(":)", "I just wanted to say Hello!")
+
 
 def main():
     headers = read_fasta_header()
