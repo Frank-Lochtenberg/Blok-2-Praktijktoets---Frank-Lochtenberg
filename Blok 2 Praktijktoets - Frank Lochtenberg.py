@@ -1,5 +1,5 @@
 # Made by Frank Lochtenberg
-# Version 5
+# Version 6
 
 import re
 import matplotlib.pyplot as plt
@@ -111,58 +111,100 @@ def calculating_other(exon_count, cds_count, mrna_count, total_count):
     return other_count
 
 
-class ConcencusCheck:
-    """Checks if the is a concencus pattern in the amino acids sequences
+class ConsensusCheck:
+    """Checks if the is a consensus pattern in the amino acids sequences
 
     """
 
     def __init__(self, headers, seq):
+        """ Converting the parameters into an object.
+        Checking with the given parameters if there is a concencus
+        pattern in the amino acids sequences.
+
+        :param headers: list of headers of amino acids.
+        :param seq: list of amino acids sequences.
+        """
         self.set_headers(headers)
         self.set_aa_seq(seq)
-        self.set_concensus()
+        self.set_consensus()
 
     def set_headers(self, headers):
+        """ Converting the headers list into an object.
+
+        :param headers: list of headers of amino acids.
+        :return: nothing
+        """
         self.headers = headers
 
     def get_headers(self):
+        """ Returns the headers list object.
+
+        :return: An headers list object
+        """
         return self.headers
 
     def set_aa_seq(self, seq):
+        """ Converting the amino acid sequences list into an
+        object.
+
+        :param seq: an amino acid sequences list object
+        :return: nothing
+        """
         self.aa_seq = seq
 
     def get_aa_seq(self):
+        """ Returns the amino acid sequences list object.
+
+        :return:
+        """
         return self.aa_seq
 
-    def set_concensus(self):
-        nccc = 0
-        cccl = []
-        for aa_seq in self.get_aa_seq():
-            ccc = re.search(r"C[A-Z]{2}C[A-Z]{2}C[A-Z]{5}C[A-Z]{2}"
-                            r"C[A-Z]{2}C", aa_seq)
-            if ccc:
-                cccl.append(ccc.group())
-                self.concencus = cccl
-            else:
-                nccc += 1
-        return nccc
+    def set_consensus(self):
+        """ Searches for the zinc finger consensus and puts the
+        sequences which contain the consensus in a list and then into a
+        object.
 
-    def get_concencus(self):
-        return self.concencus
+        :return: a integer which is the number of amino acid sequences
+        which do not contain the zinc finger consensus.
+        """
+        ncss = 0
+        cssl = []
+        for aa_seq in self.get_aa_seq():
+            css = re.search(r"C[A-Z]{2}C[A-Z]{2}C[A-Z]{5}C[A-Z]{2}"
+                            r"C[A-Z]{2}C", aa_seq)
+            if css:
+                cssl.append(css.group())
+                self.consensus = cssl
+            else:
+                ncss += 1
+        return ncss
+
+    def get_consensus(self):
+        """ Returns the zinc finger consensus list object
+
+        :return: an zinc finger consensus list object
+        """
+        return self.consensus
 
 
 class GUI:
     def __init__(self, exon_count, cds_count, mrna_count, total_count,
                  other_count):
+
+        # Converting the given parameters into a object
         self.exons_count = exon_count
         self.cds_count = cds_count
         self.mrna_count = mrna_count
         self.total_count = total_count
         self.other_count = other_count
+
+        # Transferring the zinc finger consensus list object to this
+        # class and making it a new variable and putting it in a new
+        # object
         headers = read_fasta_header()
         seq = read_fasta_seq()
-        zfc = ConcencusCheck(headers, seq).get_concencus()
+        zfc = ConsensusCheck(headers, seq).get_consensus()
         self.zfc = zfc
-        self.show_plot = plt.show()
 
         # Makes the main window
         self.main_window = tkinter.Tk()
@@ -198,10 +240,10 @@ class GUI:
         self.total_button = tkinter.Button(self.info_buttons_frame,
                                            text="Total of items Info",
                                            command=self.total)
-        self.concencus_button = tkinter.Button(self.info_buttons_frame,
+        self.consensus_button = tkinter.Button(self.info_buttons_frame,
                                                text="Zinc Finger "
-                                                    "Concencus Info",
-                                               command=self.concencus)
+                                                    "Consensus Info",
+                                               command=self.consensus)
 
         # Places the buttons for info
         self.exon_button.pack(side="left")
@@ -209,7 +251,7 @@ class GUI:
         self.mrna_button.pack(side="left")
         self.other_button.pack(side="left")
         self.total_button.pack(side="left")
-        self.concencus_button.pack(side="left")
+        self.consensus_button.pack(side="left")
 
         # Makes the graph buttons
         self.pie_button = tkinter.Button(self.graph_buttons_frame,
@@ -228,7 +270,7 @@ class GUI:
         # Make Hello Button
         self.hello_button = tkinter.Button(self.graph_buttons_frame,
                                            text="Hello",
-                                                 command=self.hello)
+                                           command=self.hello)
 
         # Place Hello Button
         self.hello_button.pack(side="left")
@@ -256,6 +298,11 @@ class GUI:
         tkinter.mainloop()
 
     def exons(self):
+        """ Shows the information over the exons sequences in a
+        messagebox.
+
+        :return: nothing
+        """
         tkinter.messagebox.showinfo("Exons Info",
                                     "There are " +
                                     str(self.exons_count) +
@@ -263,12 +310,22 @@ class GUI:
                                     "C. Elegans.")
 
     def cds(self):
+        """ Shows the information over the CDS sequences in a
+        messagebox.
+
+        :return: nothing
+        """
         tkinter.messagebox.showinfo("CDS Info",
                                     "There are " +
                                     str(self.cds_count) +
                                     " CDS sequences in the C. Elegans.")
 
     def mrna(self):
+        """ Shows the information over the mRNA sequences in a
+        messagebox.
+
+        :return: nothing
+        """
         tkinter.messagebox.showinfo("mRNA Info",
                                     "There are " +
                                     str(self.mrna_count) +
@@ -276,6 +333,11 @@ class GUI:
                                     "C. Elegans.")
 
     def other(self):
+        """ Shows the information over the other items than exon, CDS &
+        mRNA sequences in a messagebox.
+
+        :return: nothing
+        """
         tkinter.messagebox.showinfo("Other items Info",
                                     "There are " +
                                     str(self.other_count) +
@@ -283,23 +345,36 @@ class GUI:
                                     "mRNA sequences in the C. Elegans.")
 
     def total(self):
+        """ Shows the information over all sequences in a messagebox.
+
+        :return: nothing
+        """
         tkinter.messagebox.showinfo("Total of items Info",
                                     "There are " +
                                     str(self.total_count) +
                                     " of total sequences in the "
                                     "C. Elegans.")
 
-    def concencus(self):
+    def consensus(self):
+        """ Shows the information over the zinc finger consensus in a
+        messagebox.
+
+        :return: nothing
+        """
         zinc_finger_count = 0
         for _ in self.zfc:
             zinc_finger_count += 1
-        tkinter.messagebox.showinfo("Zinc Finger Concencus Info",
+        tkinter.messagebox.showinfo("Zinc Finger Consensus Info",
                                     "There are " +
                                     str(zinc_finger_count) +
-                                    " of the Zinc Finger Concencus "
+                                    " of the Zinc Finger Consensus "
                                     "constated in the C. Elegans.")
 
     def pie_diagram(self):
+        """ Makes a pie diagram over all the sequences.
+
+        :return: nothing
+        """
         values = [self.exons_count, self.cds_count, self.mrna_count,
                   self.other_count]
         labels = ["Exon", "CDS", "mRNA", "Other"]
@@ -311,6 +386,10 @@ class GUI:
         plt.show()
 
     def bar_diagram(self):
+        """ Makes a bar diagram over all the sequences.
+
+        :return: nothing
+        """
         x = ["Exon", "CDS", "mRNA", "Other"]
         y = [self.exons_count, self.cds_count, self.mrna_count,
              self.other_count]
@@ -323,6 +402,10 @@ class GUI:
         plt.show()
 
     def stacked_bar_diagram(self):
+        """ Makes a stacked bar diagram over all the sequences
+
+        :return: nothing
+        """
         x = ["Exons, CDS & mRNA sequences", "Other sequences"]
         e = [self.exons_count, 0]
         c = [self.cds_count, 0]
@@ -346,13 +429,17 @@ class GUI:
         plt.show()
 
     def hello(self):
+        """ Shows hello in the messagebox.
+
+        :return: Sadly no hello back...
+        """
         tkinter.messagebox.showinfo(":)", "I just wanted to say Hello!")
 
 
 def main():
     headers = read_fasta_header()
     d_seq = read_fasta_seq()
-    ConcencusCheck(headers, d_seq)
+    ConsensusCheck(headers, d_seq)
     exon_count = counting_exons()
     cds_count = counting_cds()
     mrna_count = counting_mrna()
